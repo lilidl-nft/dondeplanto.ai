@@ -64,6 +64,9 @@ source = ["src/dondeplanto", "app.py"]
 omit = [
     "src/dondeplanto/mock/*",
     "src/dondeplanto/__main__.py",
+    # F2: stub WFS sin integración real activa; el contrato (None ante error)
+    # se valida en el resto de los tests. F+ activará la cobertura real.
+    "src/dondeplanto/clients/inta_wfs_client.py",
 ]
 
 [tool.coverage.report]
