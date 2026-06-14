@@ -12,7 +12,7 @@ dist/
 # uv
 .venv/
 venv/
-uv.lock
+# uv.lock is intentionally committed so CI can cache dependencies (ver .github/workflows/ci.yml)
 
 # Tooling caches
 .pytest_cache/
