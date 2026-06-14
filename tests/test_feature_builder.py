@@ -36,27 +36,28 @@ def test_build_features_use_mock_returns_complete_bundle() -> None:
 
 
 def test_build_features_pending_blocks_raise_without_use_mock() -> None:
-    """Sin use_mock, los bloques pendientes (clima/fuego/logística) levantan NotImplementedError."""
+    """Sin use_mock, los bloques pendientes (observado/fuego/logística) levantan NotImplementedError.
+
+    F4 ya integró el cliente de clima futuro, así que `_build_future` ya no
+    levanta. F5 integrará los otros tres bloques.
+    """
     lat, lon = DEMO_LOCATIONS["Corrientes (Santo Tomé)"]
     with pytest.raises(NotImplementedError, match="F5"):
         build_features({"lat": lat, "lon": lon})
 
 
 def test_build_features_data_quality_partial_mock_in_coverage_no_use_mock_raises() -> None:
-    """Sin use_mock y dentro de cobertura: el bloque soil es INTA real pero los
-    otros levantan NotImplementedError, así que solo se puede llegar a
-    `data_quality` cuando el caller ya consumió la excepción.
+    """Sin use_mock y dentro de cobertura: soil+future se construyen, observed levanta F5.
 
-    Este test verifica que la rama real (no use_mock) intenta ir a INTA
-    local antes de levantar la excepción pendiente.
+    F4 ya integró el cliente de clima futuro. Este test verifica que la
+    construcción llega hasta `_build_observed` (que sigue siendo F5) sin
+    fallar antes en suelo ni en clima futuro.
     """
     lat, lon = DEMO_LOCATIONS["Misiones (Oberá)"]
-    # Verificamos vía mock: la primera excepción proviene de _build_observed,
-    # lo que confirma que el bloque soil SÍ se construyó como real.
     with pytest.raises(NotImplementedError) as exc_info:
         build_features({"lat": lat, "lon": lon})
-    # El error menciona F5 (clima), no el suelo, lo que prueba que el suelo
-    # se construyó OK antes de fallar en el siguiente bloque.
+    # El error menciona F5 (observado), no el suelo ni el futuro, lo que
+    # prueba que esos dos bloques se construyeron OK antes de fallar.
     assert "F5" in str(exc_info.value)
 
 
