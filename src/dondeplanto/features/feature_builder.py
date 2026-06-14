@@ -61,10 +61,11 @@ def _build_observed(lat: float, lon: float, use_mock: bool) -> dict[str, Any]:
 
 
 def _build_future(lat: float, lon: float, use_mock: bool) -> dict[str, Any]:
-    """FutureClimate. F2: no hay cliente real; cae a mock si use_mock."""
-    if use_mock:
-        return dict(get_mock_bundle(lat, lon)["future"])
-    raise NotImplementedError("F5")
+    """FutureClimate. F4: cliente Open-Meteo Climate con fallback a mock."""
+    # Import local para evitar import circular
+    from dondeplanto.clients.open_meteo_climate_client import get_climate_delta
+
+    return get_climate_delta(lat, lon, use_mock=use_mock)
 
 
 def _build_fire(lat: float, lon: float, use_mock: bool) -> dict[str, Any]:
