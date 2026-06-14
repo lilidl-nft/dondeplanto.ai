@@ -1,0 +1,20 @@
+{
+  "corrientes_santo_tome": {
+    "lat": -28.55,
+    "lon": -56.05,
+    "label": "Corrientes (Santo Tomé)",
+    "expected_pattern": "suelo apto, buen drenaje, dunnii > grandis a 2050"
+  },
+  "entre_rios_concordia": {
+    "lat": -31.39,
+    "lon": -58.02,
+    "label": "Entre Ríos (Concordia)",
+    "expected_pattern": "drenaje imperfecto domina, taeda > dunnii > grandis"
+  },
+  "misiones_obera": {
+    "lat": -27.49,
+    "lon": -55.12,
+    "label": "Misiones (Oberá)",
+    "expected_pattern": "suelo rojo profundo, aptitude se mantiene alta a 2050"
+  }
+}
