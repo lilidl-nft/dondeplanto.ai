@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+*.egg
+
+# uv
+.venv/
+venv/
+uv.lock
+
+# Tooling caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+.coverage.*
+
+# Streamlit
+.streamlit/secrets.toml
+
+# Entorno
+.env
+.env.local
+.env.*.local
+
+# Datos generados pesados (los GeoPackages MOCK sí se commitean; este patrón
+# excluye solo los *_real.gpkg que descargue el humano en F-secuún la sección 10 del spec).
+data/inta/*_real.gpkg
+data/inta/*_real/
+
+# Reports descargados
+data/reports/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db

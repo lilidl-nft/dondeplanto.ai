@@ -1,0 +1,39 @@
+# Perfiles de especie (punto de partida calibrable, NO hardcodear en código).
+# Campos siguen la sección 2.8 del build spec.
+# Documentar fuente/criterio en docs/scoring_methodology.md.
+
+Eucalyptus dunnii:
+  temp_min_c: 12
+  temp_opt_low_c: 18
+  temp_opt_high_c: 24
+  temp_max_c: 28
+  precip_min_mm: 800
+  precip_opt_low_mm: 1000
+  precip_opt_high_mm: 1400
+  precip_max_mm: 1800
+  drought_tolerance: 0.7
+  fire_sensitivity: 0.5
+
+Eucalyptus grandis:
+  temp_min_c: 14
+  temp_opt_low_c: 20
+  temp_opt_high_c: 28
+  temp_max_c: 32
+  precip_min_mm: 1000
+  precip_opt_low_mm: 1200
+  precip_opt_high_mm: 1800
+  precip_max_mm: 2200
+  drought_tolerance: 0.45
+  fire_sensitivity: 0.6
+
+Pinus taeda:
+  temp_min_c: 8
+  temp_opt_low_c: 16
+  temp_opt_high_c: 24
+  temp_max_c: 30
+  precip_min_mm: 700
+  precip_opt_low_mm: 900
+  precip_opt_high_mm: 1500
+  precip_max_mm: 2000
+  drought_tolerance: 0.55
+  fire_sensitivity: 0.45
