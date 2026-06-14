@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
-
 from dondeplanto.config import DEMO_LOCATIONS
 from dondeplanto.features.feature_builder import build_features
 from dondeplanto.mock import get_mock_bundle
@@ -36,29 +34,56 @@ def test_build_features_use_mock_returns_complete_bundle() -> None:
 
 
 def test_build_features_pending_blocks_raise_without_use_mock() -> None:
-    """Sin use_mock, los bloques pendientes (observado/fuego/logística) levantan NotImplementedError.
+    """En F5 todos los bloques están integrados, así que ya no hay NotImplementedError.
 
-    F4 ya integró el cliente de clima futuro, así que `_build_future` ya no
-    levanta. F5 integrará los otros tres bloques.
+    Sin use_mock=True, los clientes reales intentan la red. Si fallan,
+    caen a mock (sin levantar). Esta propiedad la verificamos con todos
+    los requests bloqueados.
     """
-    lat, lon = DEMO_LOCATIONS["Corrientes (Santo Tomé)"]
-    with pytest.raises(NotImplementedError, match="F5"):
-        build_features({"lat": lat, "lon": lon})
+    from dondeplanto.features import feature_builder as fb_mod
 
+    def _fail(*_a: object, **_k: object) -> object:
+        raise AssertionError("no debe llamar red en este test")
 
-def test_build_features_data_quality_partial_mock_in_coverage_no_use_mock_raises() -> None:
-    """Sin use_mock y dentro de cobertura: soil+future se construyen, observed levanta F5.
+    # Hack: patcheamos requests.get y requests.post en cada cliente via
+    # feature_builder para verificar que no se levante nada.
+    import dondeplanto.clients.firms_client as fir_mod
+    import dondeplanto.clients.open_meteo_climate_client as clim_mod
+    import dondeplanto.clients.open_meteo_observed_client as obs_mod
+    import dondeplanto.clients.overpass_client as ovr_mod
 
-    F4 ya integró el cliente de clima futuro. Este test verifica que la
-    construcción llega hasta `_build_observed` (que sigue siendo F5) sin
-    fallar antes en suelo ni en clima futuro.
-    """
-    lat, lon = DEMO_LOCATIONS["Misiones (Oberá)"]
-    with pytest.raises(NotImplementedError) as exc_info:
-        build_features({"lat": lat, "lon": lon})
-    # El error menciona F5 (observado), no el suelo ni el futuro, lo que
-    # prueba que esos dos bloques se construyeron OK antes de fallar.
-    assert "F5" in str(exc_info.value)
+    saved = {
+        "obs": obs_mod.requests.get,
+        "clim": clim_mod.requests.get,
+        "fir": fir_mod.requests.get,
+        "ovr_post": ovr_mod.requests.post,
+        "ovr_get": ovr_mod.requests.get,
+    }
+    obs_mod.requests.get = _fail  # type: ignore[assignment]
+    clim_mod.requests.get = _fail  # type: ignore[assignment]
+    fir_mod.requests.get = _fail  # type: ignore[assignment]
+    ovr_mod.requests.post = _fail  # type: ignore[assignment]
+    ovr_mod.requests.get = _fail  # type: ignore[assignment]
+    try:
+        lat, lon = DEMO_LOCATIONS["Corrientes (Santo Tomé)"]
+        # No debe levantar; los clientes observados/clima/fuego/logística
+        # degradan a mock. El bloque soil SÍ es real (INTA local).
+        bundle = build_features({"lat": lat, "lon": lon})
+        for key in ("observed", "future", "fire", "logistics"):
+            assert key in bundle
+            assert bundle[key]["source"] == "mock", (
+                f"{key} no degradó a mock: {bundle[key].get('source')}"
+            )
+        # Soil debe ser INTA real (no tocado por los mocks de red)
+        assert bundle["soil"]["source"] == "inta_local"
+    finally:
+        obs_mod.requests.get = saved["obs"]
+        clim_mod.requests.get = saved["clim"]
+        fir_mod.requests.get = saved["fir"]
+        ovr_mod.requests.post = saved["ovr_post"]
+        ovr_mod.requests.get = saved["ovr_get"]
+    # Marca el import usado para que ruff no se queje
+    _ = fb_mod
 
 
 def test_build_features_matches_mock_bundle_when_use_mock() -> None:

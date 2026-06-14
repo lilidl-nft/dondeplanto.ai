@@ -19,7 +19,6 @@ from typing import Any
 
 from dondeplanto.clients.inta_local_client import get_soil_aptitude
 from dondeplanto.config import PROVINCE_REGION, province_for_point
-from dondeplanto.mock import get_mock_bundle
 
 logger = logging.getLogger(__name__)
 
@@ -54,10 +53,10 @@ def _build_soil(lat: float, lon: float, use_mock: bool) -> dict[str, Any]:
 
 
 def _build_observed(lat: float, lon: float, use_mock: bool) -> dict[str, Any]:
-    """ObservedClimate. F2: no hay cliente real; cae a mock si use_mock."""
-    if use_mock:
-        return dict(get_mock_bundle(lat, lon)["observed"])
-    raise NotImplementedError("F5")
+    """ObservedClimate. F5: cliente Open-Meteo Archive con fallback a mock."""
+    from dondeplanto.clients.open_meteo_observed_client import get_observed_climate
+
+    return get_observed_climate(lat, lon, use_mock=use_mock)
 
 
 def _build_future(lat: float, lon: float, use_mock: bool) -> dict[str, Any]:
@@ -69,17 +68,17 @@ def _build_future(lat: float, lon: float, use_mock: bool) -> dict[str, Any]:
 
 
 def _build_fire(lat: float, lon: float, use_mock: bool) -> dict[str, Any]:
-    """FireFeatures. F2: no hay cliente real; cae a mock si use_mock."""
-    if use_mock:
-        return dict(get_mock_bundle(lat, lon)["fire"])
-    raise NotImplementedError("F5")
+    """FireFeatures. F5: cliente FIRMS con fallback a mock (sin key -> mock)."""
+    from dondeplanto.clients.firms_client import get_fire_activity
+
+    return get_fire_activity(lat, lon, use_mock=use_mock)
 
 
 def _build_logistics(lat: float, lon: float, use_mock: bool) -> dict[str, Any]:
-    """LogisticsFeatures. F2: no hay cliente real; cae a mock si use_mock."""
-    if use_mock:
-        return dict(get_mock_bundle(lat, lon)["logistics"])
-    raise NotImplementedError("F5")
+    """LogisticsFeatures. F5: cliente Overpass con fallback a mock obligatorio."""
+    from dondeplanto.clients.overpass_client import get_logistics
+
+    return get_logistics(lat, lon, use_mock=use_mock)
 
 
 # ---------------------------------------------------------------------------
